@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -18,24 +20,50 @@ import java.util.Scanner;
  */
 
 public class Barco {
-    public static final int LONGITUD_FRAGATA = 2;
-    public static final int LONGITUD_PORTAAVION = 5;
-    public static final int LONGITUD_CRUCERO = 3;
-    public static final int LONGITUD_DESTRUCTOR = 4;
-
-    public static final String ID_FRAGATA = "Fragata";
-    public static final String ID_PORTAAVION = "Portaavion";
-    public static final String ID_CRUCERO = "Crucero";
-    public static final String ID_DESTRUCTOR = "Destructor";
+    Random azar = new Random();
 
     private List<Casilla> casillas;
+    private TipoBarco tipoBarco;
+    private String IdBarco = " ";
 
     /**
      * Construye un barco
      * 
      */
-    public Barco(List<Casilla> casillas) {
-        this.casillas = casillas;
+    public Barco(List<Casilla> casillas, TipoBarco tipoBarco, String IdBarco) {
+        this.IdBarco = IdBarco;
+        this.tipoBarco = tipoBarco;
+        this.casillas = generarCasillas(IdBarco);
+    }
+
+    public List<Casilla> generarCasillas(String IdBarco) {
+        List<Casilla> casillasBarco = new ArrayList<>();
+
+        for (Map.Entry<String, List<Casilla>> entry : tipoBarco.forma.entrySet()) {
+
+            if (entry.getKey().equals(IdBarco)) {
+                List<Casilla> dimensiones = entry.getValue();
+                int longitud = dimensiones.size();
+
+                int x = azar.nextInt(HundirLaFlota.FILAS);
+                int y = azar.nextInt(HundirLaFlota.COLUMNAS);
+                boolean orientacion = azar.nextBoolean();
+                casillasBarco.clear();
+
+                for (int i = 0; i < longitud; i++) {
+                    int incrementarFilas = 0;
+                    int incrementarColumnas = 0;
+                    if (orientacion) {
+                        incrementarFilas = i;
+                    } else {
+                        incrementarColumnas = i;
+                    }
+                    casillas.add(new Casilla(x + incrementarFilas, y + incrementarColumnas, false));
+                }
+            }
+        }
+
+        return casillas;
     }
 
     /**

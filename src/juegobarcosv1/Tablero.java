@@ -33,7 +33,6 @@ public class Tablero {
     private int filas;
     private int columnas;
     private Map<String, List<Barco>> barcos;
-    private Map<String, List<Casilla>> dimensiones;
 
     /**
      * Construye el tablero de juego
@@ -43,30 +42,12 @@ public class Tablero {
         this.columnas = columnas;
         this.filas = filas;
         this.barcos = new HashMap<>();
-        this.dimensiones = new HashMap<>();
 
-        barcos.put(Barco.ID_CRUCERO, new ArrayList<>());
-        barcos.put(Barco.ID_DESTRUCTOR, new ArrayList<>());
-        barcos.put(Barco.ID_FRAGATA, new ArrayList<>());
-        barcos.put(Barco.ID_PORTAAVION, new ArrayList<>());
+        barcos.put(TipoBarco.ID_CRUCERO, new ArrayList<>());
+        barcos.put(TipoBarco.ID_DESTRUCTOR, new ArrayList<>());
+        barcos.put(TipoBarco.ID_FRAGATA, new ArrayList<>());
+        barcos.put(TipoBarco.ID_PORTAAVION, new ArrayList<>());
 
-        dimensiones.put(Barco.ID_CRUCERO, new ArrayList<>());
-        dimensiones.put(Barco.ID_DESTRUCTOR, new ArrayList<>());
-        dimensiones.put(Barco.ID_FRAGATA, new ArrayList<>());
-        dimensiones.put(Barco.ID_PORTAAVION, new ArrayList<>());
-
-        dimensiones.get(Barco.ID_CRUCERO).addAll(generarCasillas(Barco.LONGITUD_CRUCERO));
-        dimensiones.get(Barco.ID_DESTRUCTOR).addAll(generarCasillas(Barco.LONGITUD_DESTRUCTOR));
-        dimensiones.get(Barco.ID_FRAGATA).addAll(generarCasillas(Barco.LONGITUD_FRAGATA));
-        dimensiones.get(Barco.ID_PORTAAVION).addAll(generarCasillas(Barco.LONGITUD_PORTAAVION));
-    }
-
-    private List<Casilla> generarCasillas(int longitud) {
-        List<Casilla> casillas = new ArrayList<>();
-        for (int i = 0; i < longitud; i++) {
-            casillas.add(new Casilla(0, 0, false));
-        }
-        return casillas;
     }
 
     /**
@@ -93,7 +74,8 @@ public class Tablero {
             if (!barcos.containsKey(IDBarco)) {
                 barcos.put(IDBarco, new ArrayList<>());
             }
-            barcos.get(IDBarco).add(new Barco(casillas));
+            TipoBarco tipoBarco;
+            barcos.get(IDBarco).add(new Barco(casillas, tipoBarco, IDBarco));
         }
     }
 
@@ -132,64 +114,30 @@ public class Tablero {
     }
 
     /**
-     * Dado una clave de un Barco devuelve sus dimesiones
-     * 
-     */
-    public List<Casilla> obtenerDimensiones(String clave) {
-        List<Casilla> dimensionesBarco = new ArrayList<>();
-        for (Map.Entry<String, List<Casilla>> entry : dimensiones.entrySet()) {
-            if (entry.getKey().equals(clave)) {
-                dimensionesBarco.addAll(entry.getValue());
-                break;
-            }
-        }
-        return dimensionesBarco;
-    }
-
-    /**
      * Coloca un Barco de una clave especifica de manera aleatoria
      * 
      */
     public boolean colocarBarco(String ID) {
-        List<Casilla> casillasBarco = obtenerDimensiones(ID);
-        int longitud = casillasBarco.size();
-        Random azar = new Random();
-        int intentos = 0;
+        TipoBarco tipoBarco;
+        List<Casilla> casillasBarco = new ArrayList<>();
         boolean colocado = false;
+        int intentos = 0;
+        Barco barco = new Barco(casillasBarco, tipoBarco, ID);
 
-        do {
-            intentos++;
-            int x = azar.nextInt(filas);
-            int y = azar.nextInt(columnas);
-            boolean orientacion = azar.nextBoolean();
+        while (!colocado && intentos < MAX_INTENTOS) {
 
-            casillasBarco.clear();
-
-            for (int i = 0; i < longitud; i++) {
-                int incrementarFilas = 0;
-                int incrementarColumnas = 0;
-                if (orientacion) {
-                    incrementarFilas = i;
-                } else {
-                    incrementarColumnas = i;
-                }
-                casillasBarco.add(new Casilla(x + incrementarFilas,
-                        y + incrementarColumnas,
-                        false));
-            }
-
-            if (!barcos.containsKey(ID)) {
-                barcos.put(ID, new ArrayList<>());
-            }
+            barco.generarCasillas(ID);
 
             if (barcoValido(casillasBarco) && !solapamiento(casillasBarco)) {
                 colocado = true;
-            }
-        } while (!colocado && intentos < MAX_INTENTOS);
+                if (colocado) {
+                    barcos.get(ID).add(barco);
+                    return true;
 
-        if (colocado) {
-            barcos.get(ID).add(new Barco(casillasBarco));
-            return true;
+                }
+                intentos++;
+
+            }
         }
         return false;
     }
@@ -214,35 +162,29 @@ public class Tablero {
      * 
      */
     public String barcosRestantes() {
-        Map<String, Integer> barcosRestantes = new HashMap<>();
         String tipoBarco = "";
-        List<Casilla> dimensionesBarco = new ArrayList<>();
+        String s = "Barcos restantes:\n";
 
-        barcosRestantes.put(Barco.ID_FRAGATA, 0);
-        barcosRestantes.put(Barco.ID_PORTAAVION, 0);
-        barcosRestantes.put(Barco.ID_CRUCERO, 0);
-        barcosRestantes.put(Barco.ID_DESTRUCTOR, 0);
-
-        for (Map.Entry<String, List<Casilla>> entry : dimensiones.entrySet()) {
+        for (Map.Entry<String, List<Barco>> entry : barcos.entrySet()) {
             tipoBarco = entry.getKey();
-            dimensionesBarco = entry.getValue();
+            contarBarcosHundidos(tipoBarco);
+            s += tipoBarco + ":" + contarBarcosHundidos(tipoBarco) + " ";
+        }
+        return s;
+    }
 
-            if (barcos.containsKey(tipoBarco)) {
-                for (Barco barco : barcos.get(tipoBarco)) {
-                    if (!barco.estaHundido()) {
-                        barcosRestantes.put(tipoBarco, barcosRestantes.get(tipoBarco) + 1);
-                    }
+    public int contarBarcosHundidos(String ID) {
+        int barcosHundidos = 0;
+
+        if (barcos.containsKey(ID)) {
+            for (Barco barco : barcos.get(ID)) {
+                if (barco.estaHundido()) {
+                    barcosHundidos++;
                 }
             }
         }
-        String s = "Barcos restantes:\n";
-        for (Map.Entry<String, Integer> entry : barcosRestantes.entrySet()) {
-            String key = entry.getKey();
-            int valor = entry.getValue();
 
-            s += key + ": " + valor + " ";
-        }
-        return s;
+        return barcosHundidos;
     }
 
     /**

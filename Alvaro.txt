@@ -3,7 +3,7 @@
 9 9
 4
 4 1 0 true 2 0 true 3 0 true 4 0 true 
-3 4 3 true 5 3 true 6 3 true 
-2 6 4 true 6 5 true 
-5 7 0 true 7 1 true 7 2 true 7 3 true 7 4 true 
+3 4 1 true 4 2 true 4 3 true 
+2 3 7 true 4 7 true 
+5 7 1 true 7 2 true 7 3 true 7 4 true 7 5 true 
 

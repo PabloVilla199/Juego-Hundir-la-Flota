@@ -47,10 +47,10 @@ public class HundirLaFlota {
      * 
      */
     public void colocarBarcos() {
-        partida.colocarBarco(Barco.ID_CRUCERO);
-        partida.colocarBarco(Barco.ID_DESTRUCTOR);
-        partida.colocarBarco(Barco.ID_FRAGATA);
-        partida.colocarBarco(Barco.ID_PORTAAVION);
+        partida.colocarBarco(TipoBarco.ID_CRUCERO);
+        partida.colocarBarco(TipoBarco.ID_DESTRUCTOR);
+        partida.colocarBarco(TipoBarco.ID_FRAGATA);
+        partida.colocarBarco(TipoBarco.ID_PORTAAVION);
     }
 
     /**
