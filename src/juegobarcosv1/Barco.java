@@ -33,36 +33,29 @@ public class Barco {
     public Barco(List<Casilla> casillas, TipoBarco tipoBarco, String IdBarco) {
         this.IdBarco = IdBarco;
         this.tipoBarco = tipoBarco;
-        this.casillas = generarCasillas(IdBarco);
+        this.casillas = casillas;
     }
 
     public List<Casilla> generarCasillas(String IdBarco) {
-        List<Casilla> casillasBarco = new ArrayList<>();
+        List<Casilla> casillas = new ArrayList<>();
+        casillas = tipoBarco.formaBarco(IdBarco);
+        int longitud = casillas.size();
 
-        for (Map.Entry<String, List<Casilla>> entry : tipoBarco.forma.entrySet()) {
+        int x = azar.nextInt(HundirLaFlota.FILAS);
+        int y = azar.nextInt(HundirLaFlota.COLUMNAS);
+        boolean orientacion = azar.nextBoolean();
+        casillas.clear();
 
-            if (entry.getKey().equals(IdBarco)) {
-                List<Casilla> dimensiones = entry.getValue();
-                int longitud = dimensiones.size();
-
-                int x = azar.nextInt(HundirLaFlota.FILAS);
-                int y = azar.nextInt(HundirLaFlota.COLUMNAS);
-                boolean orientacion = azar.nextBoolean();
-                casillasBarco.clear();
-
-                for (int i = 0; i < longitud; i++) {
-                    int incrementarFilas = 0;
-                    int incrementarColumnas = 0;
-                    if (orientacion) {
-                        incrementarFilas = i;
-                    } else {
-                        incrementarColumnas = i;
-                    }
-                    casillas.add(new Casilla(x + incrementarFilas, y + incrementarColumnas, false));
-                }
+        for (int i = 0; i < longitud; i++) {
+            int incrementarFilas = 0;
+            int incrementarColumnas = 0;
+            if (orientacion) {
+                incrementarFilas = i;
+            } else {
+                incrementarColumnas = i;
             }
+            casillas.add(new Casilla(x + incrementarFilas, y + incrementarColumnas, false));
         }
-
         return casillas;
     }
 
@@ -82,12 +75,11 @@ public class Barco {
      * Construye un barco
      * 
      */
+
     public boolean valida(Casilla casilla) {
         for (Casilla casilla_array : casillas) {
             if (casilla_array.equals(casilla)) {
-
                 return true;
-
             }
         }
         return false;

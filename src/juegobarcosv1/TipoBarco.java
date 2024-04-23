@@ -16,10 +16,12 @@ public class TipoBarco {
     public static final String ID_CRUCERO = "Crucero";
     public static final String ID_DESTRUCTOR = "Destructor";
 
-    static Map<String, List<Casilla>> forma = new HashMap<>();
+    Map<String, List<Casilla>> forma = new HashMap<>();
+    String ID = " ";
 
-    public TipoBarco() {
-        this.forma = forma;
+    public TipoBarco(String ID) {
+        this.ID = ID;
+        forma = new HashMap<>();
 
         forma.put(TipoBarco.ID_CRUCERO, new ArrayList<>());
         forma.put(TipoBarco.ID_DESTRUCTOR, new ArrayList<>());
@@ -39,6 +41,18 @@ public class TipoBarco {
             casillas.add(new Casilla(0, 0, false));
         }
         return casillas;
+    }
+
+    public List<Casilla> formaBarco(String ID) {
+        List<Casilla> casillasBarco = new ArrayList<>();
+
+        for (Map.Entry<String, List<Casilla>> entry : forma.entrySet()) {
+            if (entry.getKey().equals(ID)) {
+                casillasBarco = entry.getValue();
+                break;
+            }
+        }
+        return casillasBarco;
     }
 
 }

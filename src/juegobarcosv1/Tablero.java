@@ -74,7 +74,7 @@ public class Tablero {
             if (!barcos.containsKey(IDBarco)) {
                 barcos.put(IDBarco, new ArrayList<>());
             }
-            TipoBarco tipoBarco;
+            TipoBarco tipoBarco = new TipoBarco(IDBarco);
             barcos.get(IDBarco).add(new Barco(casillas, tipoBarco, IDBarco));
         }
     }
@@ -118,26 +118,25 @@ public class Tablero {
      * 
      */
     public boolean colocarBarco(String ID) {
-        TipoBarco tipoBarco;
+        TipoBarco tipoBarco = new TipoBarco(ID);
         List<Casilla> casillasBarco = new ArrayList<>();
         boolean colocado = false;
         int intentos = 0;
         Barco barco = new Barco(casillasBarco, tipoBarco, ID);
 
-        while (!colocado && intentos < MAX_INTENTOS) {
-
-            barco.generarCasillas(ID);
+        do {
+            casillasBarco = barco.generarCasillas(ID);
 
             if (barcoValido(casillasBarco) && !solapamiento(casillasBarco)) {
                 colocado = true;
-                if (colocado) {
-                    barcos.get(ID).add(barco);
-                    return true;
-
-                }
-                intentos++;
-
             }
+            intentos++;
+
+        } while (!colocado && intentos < MAX_INTENTOS);
+
+        if (colocado) {
+            barcos.get(ID).add(new Barco(casillasBarco, tipoBarco, ID));
+            return true;
         }
         return false;
     }
